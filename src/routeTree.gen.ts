@@ -9,38 +9,200 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as LangRouteImport } from './routes/$lang'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as LangIndexRouteImport } from './routes/$lang.index'
+import { Route as LangSparePartsRouteImport } from './routes/$lang.spare-parts'
+import { Route as AdminProductsIndexRouteImport } from './routes/admin.products.index'
+import { Route as LangProductsIndexRouteImport } from './routes/$lang.products.index'
+import { Route as AdminProductsNewRouteImport } from './routes/admin.products.new'
+import { Route as AdminProductsIdRouteImport } from './routes/admin.products.$id'
+import { Route as LangProductsCategoryIndexRouteImport } from './routes/$lang.products.$category.index'
+import { Route as AdminProductsIdPreviewRouteImport } from './routes/admin.products.$id.preview'
+import { Route as LangProductsCategoryProductRouteImport } from './routes/$lang.products.$category.$product'
 
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LangRoute = LangRouteImport.update({
+  id: '/$lang',
+  path: '/$lang',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const LangIndexRoute = LangIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LangRoute,
+} as any)
+const LangSparePartsRoute = LangSparePartsRouteImport.update({
+  id: '/spare-parts',
+  path: '/spare-parts',
+  getParentRoute: () => LangRoute,
+} as any)
+const AdminProductsIndexRoute = AdminProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const LangProductsIndexRoute = LangProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => LangRoute,
+} as any)
+const AdminProductsNewRoute = AdminProductsNewRouteImport.update({
+  id: '/products/new',
+  path: '/products/new',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProductsIdRoute = AdminProductsIdRouteImport.update({
+  id: '/products/$id',
+  path: '/products/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
+const LangProductsCategoryIndexRoute =
+  LangProductsCategoryIndexRouteImport.update({
+    id: '/products/$category/',
+    path: '/products/$category/',
+    getParentRoute: () => LangRoute,
+  } as any)
+const AdminProductsIdPreviewRoute = AdminProductsIdPreviewRouteImport.update({
+  id: '/preview',
+  path: '/preview',
+  getParentRoute: () => AdminProductsIdRoute,
+} as any)
+const LangProductsCategoryProductRoute =
+  LangProductsCategoryProductRouteImport.update({
+    id: '/products/$category/$product',
+    path: '/products/$category/$product',
+    getParentRoute: () => LangRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$lang': typeof LangRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
+  '/$lang/spare-parts': typeof LangSparePartsRoute
+  '/$lang/': typeof LangIndexRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/products/$id': typeof AdminProductsIdRouteWithChildren
+  '/admin/products/new': typeof AdminProductsNewRoute
+  '/$lang/products/': typeof LangProductsIndexRoute
+  '/admin/products/': typeof AdminProductsIndexRoute
+  '/$lang/products/$category/$product': typeof LangProductsCategoryProductRoute
+  '/admin/products/$id/preview': typeof AdminProductsIdPreviewRoute
+  '/$lang/products/$category/': typeof LangProductsCategoryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$lang/spare-parts': typeof LangSparePartsRoute
+  '/$lang': typeof LangIndexRoute
+  '/admin': typeof AdminIndexRoute
+  '/admin/products/$id': typeof AdminProductsIdRouteWithChildren
+  '/admin/products/new': typeof AdminProductsNewRoute
+  '/$lang/products': typeof LangProductsIndexRoute
+  '/admin/products': typeof AdminProductsIndexRoute
+  '/$lang/products/$category/$product': typeof LangProductsCategoryProductRoute
+  '/admin/products/$id/preview': typeof AdminProductsIdPreviewRoute
+  '/$lang/products/$category': typeof LangProductsCategoryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$lang': typeof LangRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
+  '/$lang/spare-parts': typeof LangSparePartsRoute
+  '/$lang/': typeof LangIndexRoute
+  '/admin/': typeof AdminIndexRoute
+  '/admin/products/$id': typeof AdminProductsIdRouteWithChildren
+  '/admin/products/new': typeof AdminProductsNewRoute
+  '/$lang/products/': typeof LangProductsIndexRoute
+  '/admin/products/': typeof AdminProductsIndexRoute
+  '/$lang/products/$category/$product': typeof LangProductsCategoryProductRoute
+  '/admin/products/$id/preview': typeof AdminProductsIdPreviewRoute
+  '/$lang/products/$category/': typeof LangProductsCategoryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/$lang'
+    | '/admin'
+    | '/$lang/spare-parts'
+    | '/$lang/'
+    | '/admin/'
+    | '/admin/products/$id'
+    | '/admin/products/new'
+    | '/$lang/products/'
+    | '/admin/products/'
+    | '/$lang/products/$category/$product'
+    | '/admin/products/$id/preview'
+    | '/$lang/products/$category/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/$lang/spare-parts'
+    | '/$lang'
+    | '/admin'
+    | '/admin/products/$id'
+    | '/admin/products/new'
+    | '/$lang/products'
+    | '/admin/products'
+    | '/$lang/products/$category/$product'
+    | '/admin/products/$id/preview'
+    | '/$lang/products/$category'
+  id:
+    | '__root__'
+    | '/'
+    | '/$lang'
+    | '/admin'
+    | '/$lang/spare-parts'
+    | '/$lang/'
+    | '/admin/'
+    | '/admin/products/$id'
+    | '/admin/products/new'
+    | '/$lang/products/'
+    | '/admin/products/'
+    | '/$lang/products/$category/$product'
+    | '/admin/products/$id/preview'
+    | '/$lang/products/$category/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LangRoute: typeof LangRouteWithChildren
+  AdminRoute: typeof AdminRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$lang': {
+      id: '/$lang'
+      path: '/$lang'
+      fullPath: '/$lang'
+      preLoaderRoute: typeof LangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +210,130 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/$lang/': {
+      id: '/$lang/'
+      path: '/'
+      fullPath: '/$lang/'
+      preLoaderRoute: typeof LangIndexRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/$lang/spare-parts': {
+      id: '/$lang/spare-parts'
+      path: '/spare-parts'
+      fullPath: '/$lang/spare-parts'
+      preLoaderRoute: typeof LangSparePartsRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/admin/products/': {
+      id: '/admin/products/'
+      path: '/products'
+      fullPath: '/admin/products/'
+      preLoaderRoute: typeof AdminProductsIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/$lang/products/': {
+      id: '/$lang/products/'
+      path: '/products'
+      fullPath: '/$lang/products/'
+      preLoaderRoute: typeof LangProductsIndexRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/admin/products/new': {
+      id: '/admin/products/new'
+      path: '/products/new'
+      fullPath: '/admin/products/new'
+      preLoaderRoute: typeof AdminProductsNewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/products/$id': {
+      id: '/admin/products/$id'
+      path: '/products/$id'
+      fullPath: '/admin/products/$id'
+      preLoaderRoute: typeof AdminProductsIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/$lang/products/$category/': {
+      id: '/$lang/products/$category/'
+      path: '/products/$category'
+      fullPath: '/$lang/products/$category/'
+      preLoaderRoute: typeof LangProductsCategoryIndexRouteImport
+      parentRoute: typeof LangRoute
+    }
+    '/admin/products/$id/preview': {
+      id: '/admin/products/$id/preview'
+      path: '/preview'
+      fullPath: '/admin/products/$id/preview'
+      preLoaderRoute: typeof AdminProductsIdPreviewRouteImport
+      parentRoute: typeof AdminProductsIdRoute
+    }
+    '/$lang/products/$category/$product': {
+      id: '/$lang/products/$category/$product'
+      path: '/products/$category/$product'
+      fullPath: '/$lang/products/$category/$product'
+      preLoaderRoute: typeof LangProductsCategoryProductRouteImport
+      parentRoute: typeof LangRoute
+    }
   }
 }
 
+interface LangRouteChildren {
+  LangSparePartsRoute: typeof LangSparePartsRoute
+  LangIndexRoute: typeof LangIndexRoute
+  LangProductsIndexRoute: typeof LangProductsIndexRoute
+  LangProductsCategoryProductRoute: typeof LangProductsCategoryProductRoute
+  LangProductsCategoryIndexRoute: typeof LangProductsCategoryIndexRoute
+}
+
+const LangRouteChildren: LangRouteChildren = {
+  LangSparePartsRoute: LangSparePartsRoute,
+  LangIndexRoute: LangIndexRoute,
+  LangProductsIndexRoute: LangProductsIndexRoute,
+  LangProductsCategoryProductRoute: LangProductsCategoryProductRoute,
+  LangProductsCategoryIndexRoute: LangProductsCategoryIndexRoute,
+}
+
+const LangRouteWithChildren = LangRoute._addFileChildren(LangRouteChildren)
+
+interface AdminProductsIdRouteChildren {
+  AdminProductsIdPreviewRoute: typeof AdminProductsIdPreviewRoute
+}
+
+const AdminProductsIdRouteChildren: AdminProductsIdRouteChildren = {
+  AdminProductsIdPreviewRoute: AdminProductsIdPreviewRoute,
+}
+
+const AdminProductsIdRouteWithChildren = AdminProductsIdRoute._addFileChildren(
+  AdminProductsIdRouteChildren,
+)
+
+interface AdminRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminProductsIdRoute: typeof AdminProductsIdRouteWithChildren
+  AdminProductsNewRoute: typeof AdminProductsNewRoute
+  AdminProductsIndexRoute: typeof AdminProductsIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
+  AdminProductsIdRoute: AdminProductsIdRouteWithChildren,
+  AdminProductsNewRoute: AdminProductsNewRoute,
+  AdminProductsIndexRoute: AdminProductsIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LangRoute: LangRouteWithChildren,
+  AdminRoute: AdminRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

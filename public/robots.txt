@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Update host below once the production domain is configured.
+Sitemap: https://www.faratech.example/sitemap.xml

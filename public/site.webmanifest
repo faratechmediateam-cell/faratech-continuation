@@ -1,0 +1,25 @@
+{
+  "name": "FARATECH — Engineering Mobility Excellence",
+  "short_name": "FARATECH",
+  "description": "FARATECH engineers premium wheelchair systems where aerospace precision meets clinical expertise.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f5f5f7",
+  "theme_color": "#1b1f3b",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
