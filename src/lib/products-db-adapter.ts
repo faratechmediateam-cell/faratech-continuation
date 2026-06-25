@@ -153,37 +153,47 @@ export function detailToProduct(d: ProductDetailDto): Product {
 // Category adapter
 // ---------------------------------------------------------------------------
 
-const categoryCopy = (key: DbCategoryKey) =>
-  MASTER_CATEGORY_COPY.find((c) => c.key === ENUM_TO_SLUG[key]);
-
-const localizedTitleFromDto = (dto: CategoryDto): Record<"en" | "fa" | "ar", string> => ({
+const localizedTitleFromDto = (
+  dto: CategoryDto,
+): Record<"en" | "fa" | "ar", string> => ({
   en: dto.label.en ?? dto.label.fa,
   fa: dto.label.fa,
   ar: dto.label.ar ?? dto.label.fa,
 });
 
-const blurbFor = (
-  key: DbCategoryKey,
-  fallbackTitle: string,
+const localizedFromCopy = (
+  v: { fa: string; en?: string; ar?: string } | undefined,
+  fallback: string,
 ): Record<"en" | "fa" | "ar", string> => {
-  const copy = categoryCopy(key);
-  const fa = copy?.fa.shortDescription ?? fallbackTitle;
-  return { en: fa, fa, ar: fa };
+  if (!v) return { en: fallback, fa: fallback, ar: fallback };
+  return { en: v.en ?? v.fa, fa: v.fa, ar: v.ar ?? v.fa };
 };
 
 /**
  * Build a UI `Category` from a CategoryDto plus an (optional) list of
- * product summaries belonging to that category.
+ * product summaries belonging to that category, and (optional) editorial
+ * copy persisted in `public.category_copy` (Phase 5).
+ *
+ * When `copy` is supplied, its title / short description take precedence
+ * over the enum-derived label so per-slug overrides (e.g.
+ * `shower-wheelchairs` vs. `patient-lifts`, both mapped to MOBILITY_AIDS)
+ * render correctly.
  */
 export function dtoToCategory(
   dto: CategoryDto,
   products: ProductSummaryDto[] = [],
+  copy?: CategoryCopyDto | null,
 ): Category {
-  const title = localizedTitleFromDto(dto);
+  const fallbackTitle = localizedTitleFromDto(dto);
+  const title = copy
+    ? localizedFromCopy(copy.title, fallbackTitle.fa)
+    : fallbackTitle;
+  const blurb = localizedFromCopy(copy?.shortDescription, title.fa);
+  const slug = copy?.slug ?? ENUM_TO_SLUG[dto.key as DbCategoryKey];
   return {
-    key: ENUM_TO_SLUG[dto.key as DbCategoryKey] as Category["key"],
+    key: slug as Category["key"],
     title,
-    blurb: blurbFor(dto.key as DbCategoryKey, title.en),
+    blurb,
     products: products.map(summaryToProduct),
   };
 }
