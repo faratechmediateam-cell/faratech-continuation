@@ -4,28 +4,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
- */
-
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  --font-heading: 'DM Sans', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-light: var(--brand-navy-light);
+  --color-brand-red: var(--brand-red);
+  --color-brand-red-dark: var(--brand-red-dark);
+  --color-brand-silver: var(--brand-silver);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -41,104 +30,216 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-ring-offset-background: var(--background);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 3);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --brand-navy: oklch(0.22 0.055 255);
+  --brand-navy-light: oklch(0.30 0.055 255);
+  --brand-red: oklch(0.52 0.22 25);
+  --brand-red-dark: oklch(0.40 0.20 25);
+  --brand-silver: oklch(0.94 0.005 255);
+
+  --background: oklch(0.975 0.003 255);
+  --foreground: oklch(0.12 0.03 255);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
+  --card-foreground: oklch(0.12 0.03 255);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
+  --popover-foreground: oklch(0.12 0.03 255);
+  --primary: oklch(0.22 0.055 255);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.94 0.005 255);
+  --secondary-foreground: oklch(0.22 0.055 255);
+  --muted: oklch(0.96 0.003 255);
+  --muted-foreground: oklch(0.50 0.02 255);
+  --accent: oklch(0.52 0.22 25);
+  --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --border: oklch(0.88 0.01 255);
+  --input: oklch(0.92 0.005 255);
+  --ring: oklch(0.52 0.22 25);
+  --radius: 0.375rem;
 }
 
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+/* Peyda — Persian display/UI font (single-weight file, registered across full weight range so the browser uses it for every requested weight and synthesizes bolder where needed). */
+@font-face {
+  font-family: 'Peyda';
+  src: url('/__l5e/assets-v1/2acebec4-77b9-4582-b33c-5ccf7ec76944/Peyda.woff2') format('woff2'),
+       url('/__l5e/assets-v1/5e0023f9-3558-4f2a-8f02-122a9b6a4293/Peyda.woff') format('woff');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
 }
 
 @layer base {
-  * {
-    border-color: var(--color-border);
+  * { border-color: var(--color-border); }
+  html {
+    /* Prevent iOS auto-zoom on orientation change and disable text-size adjust quirks. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
   }
-
+  html, body {
+    /* Safari 15 / older Android WebView fallback before overflow-x: clip. */
+    overflow-x: hidden;
+    overflow-x: clip;
+    max-width: 100%;
+    /* Dynamic viewport units with safe fallbacks for older browsers. */
+    min-height: 100vh;
+    min-height: 100svh;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Safe-area insets so content never falls under iOS notches / Android cutouts. */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    /* Fluid base font-size scales smoothly 320px → 1920px without media queries. */
+    font-size: clamp(15px, 0.875rem + 0.15vw, 17px);
+    line-height: 1.55;
+  }
+  /* Responsive media defaults — prevents overflow & maintains aspect ratio across all viewports. */
+  img, svg, video, canvas, audio, iframe, embed, object, picture {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  /* SVGs with explicit width/height attributes (icons) should NOT have height auto-stretched. */
+  svg[width][height] { height: revert; display: revert; }
+  /* Long words / URLs must not blow out narrow viewports (Galaxy Fold 280px, etc). */
+  h1, h2, h3, h4, h5, h6, p, a, span, li { overflow-wrap: break-word; word-wrap: break-word; }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  /* Fluid heading sizes — mobile-first, scale up smoothly to ultra-wide. */
+  h1 { font-size: clamp(2rem, 1.4rem + 3vw, 4.5rem); line-height: 1.05; }
+  h2 { font-size: clamp(1.5rem, 1.1rem + 2vw, 3rem); line-height: 1.15; }
+  h3 { font-size: clamp(1.25rem, 1rem + 1.2vw, 2rem); line-height: 1.2; }
+  /* Respect users who request reduced motion (accessibility + battery on mobile). */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Arabic — unchanged (keeps IBM Plex Sans Arabic stack). */
+  html[lang="ar"] body {
+    font-family: 'IBM Plex Sans Arabic', 'Vazirmatn', var(--font-sans);
+    font-feature-settings: "ss01", "ss02";
+  }
+  html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3,
+  html[lang="ar"] h4, html[lang="ar"] h5, html[lang="ar"] h6 {
+    font-family: 'IBM Plex Sans Arabic', 'Vazirmatn', var(--font-heading);
+    letter-spacing: 0;
+    font-weight: 700;
+  }
+
+  /* Persian — Peyda for display/UI, Vazirmatn for body/long-form text. IBM Plex Sans Arabic intentionally removed from the Persian stack. */
+  html[lang="fa"] body {
+    font-family: 'Vazirmatn', var(--font-sans);
+    font-feature-settings: "ss01", "ss02";
+  }
+  html[lang="fa"] h1 {
+    font-family: 'Peyda', 'Vazirmatn', var(--font-heading);
+    font-weight: 700; /* Bold */
+    letter-spacing: 0;
+  }
+  html[lang="fa"] h2 {
+    font-family: 'Peyda', 'Vazirmatn', var(--font-heading);
+    font-weight: 600; /* SemiBold */
+    letter-spacing: 0;
+  }
+  html[lang="fa"] h3, html[lang="fa"] h4, html[lang="fa"] h5, html[lang="fa"] h6 {
+    font-family: 'Peyda', 'Vazirmatn', var(--font-heading);
+    font-weight: 600; /* SemiBold */
+    letter-spacing: 0;
+  }
+  /* Hero main titles — ExtraBold */
+  html[lang="fa"] .hero h1,
+  html[lang="fa"] [data-hero-title] {
+    font-weight: 800;
+  }
+  /* Navigation + dropdown items — Peyda Medium */
+  html[lang="fa"] nav a,
+  html[lang="fa"] nav button {
+    font-family: 'Peyda', 'Vazirmatn', var(--font-sans);
+    font-weight: 500;
+  }
+  /* Buttons — Peyda Medium */
+  html[lang="fa"] button,
+  html[lang="fa"] .btn,
+  html[lang="fa"] a[role="button"] {
+    font-family: 'Peyda', 'Vazirmatn', var(--font-sans);
+    font-weight: 500;
+  }
+  /* Form labels — Vazirmatn Medium */
+  html[lang="fa"] label {
+    font-family: 'Vazirmatn', var(--font-sans);
+    font-weight: 500;
+  }
+  /* Inputs — Vazirmatn */
+  html[lang="fa"] input,
+  html[lang="fa"] textarea,
+  html[lang="fa"] select {
+    font-family: 'Vazirmatn', var(--font-sans);
   }
 }
+
+.font-heading { font-family: var(--font-heading); }
+html[lang="ar"] .font-heading { font-family: 'IBM Plex Sans Arabic', 'Vazirmatn', var(--font-heading); }
+html[lang="fa"] .font-heading { font-family: 'Peyda', 'Vazirmatn', var(--font-heading); }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: oklch(0.94 0.005 255); }
+::-webkit-scrollbar-thumb { background: oklch(0.22 0.055 255); border-radius: 3px; }
+
+.engineering-grid {
+  background-image:
+    linear-gradient(oklch(0.22 0.055 255 / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.22 0.055 255 / 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.animate-ticker { animation: ticker 30s linear infinite; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.7s ease-out forwards; }
+
+@keyframes line-draw { from { width: 0; } to { width: 100%; } }
+.animate-line { animation: line-draw 1.2s ease-out forwards; }
+
+/* ---- Cross-platform helpers (opt-in; no existing markup changed) ---- */
+.min-h-dvh { min-height: 100vh; min-height: 100dvh; }
+.min-h-svh { min-height: 100vh; min-height: 100svh; }
+.min-h-lvh { min-height: 100vh; min-height: 100lvh; }
+.h-dvh { height: 100vh; height: 100dvh; }
+.safe-pt { padding-top: env(safe-area-inset-top); }
+.safe-pb { padding-bottom: env(safe-area-inset-bottom); }
+.safe-pl { padding-left: env(safe-area-inset-left); }
+.safe-pr { padding-right: env(safe-area-inset-right); }
+.safe-px { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+.safe-py { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+.fluid-section { padding-block: clamp(2.5rem, 4vw + 1rem, 6rem); }
+.fluid-container-px { padding-inline: clamp(1rem, 3vw, 2.5rem); }
