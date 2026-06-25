@@ -20,7 +20,7 @@ export const listCategoryCopies = createServerFn({ method: "GET" }).handler(
 const GetCopyInput = z.object({ slug: z.string().min(1) });
 
 export const getCategoryCopy = createServerFn({ method: "GET" })
-  .validator((d: unknown) => GetCopyInput.parse(d))
+  .inputValidator((d: unknown) => GetCopyInput.parse(d))
   .handler(async ({ data }): Promise<CategoryCopyDto | null> => {
     const service = new CategoryService();
     return service.getCopyBySlug(data.slug);
