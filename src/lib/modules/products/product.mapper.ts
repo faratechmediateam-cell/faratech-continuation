@@ -17,6 +17,7 @@ import type {
   SpecificationGroupDto,
   SpecificationItemDto,
 } from "./product.dto";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 type Row = Record<string, unknown>;
 

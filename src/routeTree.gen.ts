@@ -20,6 +20,7 @@ import { Route as LangProductsIndexRouteImport } from './routes/$lang.products.i
 import { Route as AdminProductsNewRouteImport } from './routes/admin.products.new'
 import { Route as AdminProductsIdRouteImport } from './routes/admin.products.$id'
 import { Route as LangProductsCategoryIndexRouteImport } from './routes/$lang.products.$category.index'
+import { Route as ApiPublicMediaSplatRouteImport } from './routes/api.public.media.$'
 import { Route as AdminProductsIdPreviewRouteImport } from './routes/admin.products.$id.preview'
 import { Route as LangProductsCategoryProductRouteImport } from './routes/$lang.products.$category.$product'
 
@@ -79,6 +80,11 @@ const LangProductsCategoryIndexRoute =
     path: '/products/$category/',
     getParentRoute: () => LangRoute,
   } as any)
+const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
+  id: '/api/public/media/$',
+  path: '/api/public/media/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminProductsIdPreviewRoute = AdminProductsIdPreviewRouteImport.update({
   id: '/preview',
   path: '/preview',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/admin/products/': typeof AdminProductsIndexRoute
   '/$lang/products/$category/$product': typeof LangProductsCategoryProductRoute
   '/admin/products/$id/preview': typeof AdminProductsIdPreviewRoute
+  '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/$lang/products/$category/': typeof LangProductsCategoryIndexRoute
 }
 export interface FileRoutesByTo {
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/admin/products': typeof AdminProductsIndexRoute
   '/$lang/products/$category/$product': typeof LangProductsCategoryProductRoute
   '/admin/products/$id/preview': typeof AdminProductsIdPreviewRoute
+  '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/$lang/products/$category': typeof LangProductsCategoryIndexRoute
 }
 export interface FileRoutesById {
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/admin/products/': typeof AdminProductsIndexRoute
   '/$lang/products/$category/$product': typeof LangProductsCategoryProductRoute
   '/admin/products/$id/preview': typeof AdminProductsIdPreviewRoute
+  '/api/public/media/$': typeof ApiPublicMediaSplatRoute
   '/$lang/products/$category/': typeof LangProductsCategoryIndexRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/admin/products/'
     | '/$lang/products/$category/$product'
     | '/admin/products/$id/preview'
+    | '/api/public/media/$'
     | '/$lang/products/$category/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/$lang/products/$category/$product'
     | '/admin/products/$id/preview'
+    | '/api/public/media/$'
     | '/$lang/products/$category'
   id:
     | '__root__'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/admin/products/'
     | '/$lang/products/$category/$product'
     | '/admin/products/$id/preview'
+    | '/api/public/media/$'
     | '/$lang/products/$category/'
   fileRoutesById: FileRoutesById
 }
@@ -185,6 +197,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LangRoute: typeof LangRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
+  ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -266,6 +279,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LangProductsCategoryIndexRouteImport
       parentRoute: typeof LangRoute
     }
+    '/api/public/media/$': {
+      id: '/api/public/media/$'
+      path: '/api/public/media/$'
+      fullPath: '/api/public/media/$'
+      preLoaderRoute: typeof ApiPublicMediaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/products/$id/preview': {
       id: '/admin/products/$id/preview'
       path: '/preview'
@@ -333,6 +353,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LangRoute: LangRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
+  ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
