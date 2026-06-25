@@ -266,112 +266,33 @@ export const CATEGORIES: Category[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// Phase 2A — Master-data overlay.
+// Phase 5 — Master-data overlay removed.
 //
-// Identity-only records above remain the source of truth for route slugs and
-// the English display name. The Persian master files (`src/lib/data/*`)
-// enrich those records with editorial copy, technical specifications,
-// certifications, lifecycle status, and FAQ entries. New products that exist
-// only in the master file are appended to their category.
+// Up through Phase 4 this module enriched the identity-only `CATEGORIES`
+// skeleton at module-init time by overlaying editorial content, technical
+// specifications, certifications, and FAQ entries from the static files in
+// `src/lib/data/` (PRODUCTS_MASTER + CATEGORY_COPY).
 //
-// Notes:
-//  - The overlay runs synchronously at module init so the existing sync
-//    `CATEGORIES` export shape is preserved.
-//  - Source-of-truth files: COMPANY_PROFILE.txt, PRODUCT_CATEGORIES.txt,
-//    PRODUCTS_MASTER.txt. See docs/004_PROJECT_CONTEXT.md (Phase 2A).
-//  - LocalizedText fields receive Persian content under `fa` plus a fallback
-//    copy under `en` so EN/AR pages still render until proper translations
-//    are supplied. This matches the existing "render only when populated"
-//    contract used by ProductPage.
+// In Phase 5 those records were imported into Supabase
+// (`public.products`, `public.specification_groups`,
+// `public.specification_items`, `public.certifications`,
+// `public.faq_items`, `public.category_copy`) and the runtime UI now reads
+// them through the Repository / Service / Mapper / DTO layers via
+// `src/lib/products-db-adapter.ts`. Public routes therefore no longer
+// depend on the static TS files at runtime.
+//
+// The skeleton below intentionally remains identity-only: it still backs
+// the navigation chrome (footer, top-nav) and the admin in-memory CMS
+// scaffolding. Editorial copy, specs and FAQs MUST be sourced from the
+// database via the server functions in `src/lib/modules/*`.
+//
+// Source-of-truth files retained for the seed generator
+// (`scripts/generate-phase5-seed.ts`) and Phase-6 translation work:
+//   - src/lib/data/products-master.ts
+//   - src/lib/data/category-copy.ts
+//   - src/lib/data/company.ts
 // ---------------------------------------------------------------------------
-import { MASTER_PRODUCTS } from "./data/products-master";
-import { MASTER_CATEGORY_COPY } from "./data/category-copy";
 
-const localized = (fa: string): LocalizedText => ({ en: fa, fa, ar: fa });
-
-const buildSpecifications = (
-  specs: { key: string; labelEn: string; labelFa: string; valueFa: string }[],
-): SpecificationGroup[] => {
-  if (specs.length === 0) return [];
-  return [
-    {
-      key: "technical",
-      label: {
-        en: "Technical Specifications",
-        fa: "مشخصات فنی",
-        ar: "المواصفات الفنية",
-      },
-      items: specs.map((s) => ({
-        key: s.key,
-        label: { en: s.labelEn, fa: s.labelFa, ar: s.labelFa },
-        value: localized(s.valueFa),
-      })),
-    },
-  ];
-};
-
-const buildFaq = (m: (typeof MASTER_PRODUCTS)[number]): FAQItem[] => {
-  const out: FAQItem[] = [];
-  if (m.fa.warrantyPeriod) {
-    out.push({
-      question: {
-        en: "Warranty period?",
-        fa: "مدت گارانتی چقدر است؟",
-        ar: "ما هي مدة الضمان؟",
-      },
-      answer: localized(
-        m.fa.warrantyConditions
-          ? `${m.fa.warrantyPeriod} — ${m.fa.warrantyConditions}`
-          : m.fa.warrantyPeriod,
-      ),
-    });
-  }
-  if (m.fa.afterSales) {
-    out.push({
-      question: {
-        en: "After-sales service?",
-        fa: "خدمات پس از فروش چگونه است؟",
-        ar: "ما هي خدمة ما بعد البيع؟",
-      },
-      answer: localized(m.fa.afterSales),
-    });
-  }
-  return out;
-};
-
-const applyMasterOverlay = () => {
-  // Replace category Persian blurbs with the official master copy.
-  for (const copy of MASTER_CATEGORY_COPY) {
-    const c = CATEGORIES.find((cc) => cc.key === copy.key);
-    if (!c) continue;
-    c.blurb.fa = copy.fa.shortDescription;
-  }
-
-  for (const m of MASTER_PRODUCTS) {
-    const cat = CATEGORIES.find((c) => c.key === m.category);
-    if (!cat) continue;
-    let target = cat.products.find((p) => p.slug === m.slug);
-    if (!target) {
-      target = { slug: m.slug, name: m.nameEn };
-      if (m.seriesEn) target.series = { en: m.seriesEn };
-      cat.products.push(target);
-    }
-    if (m.fa.brand) target.code = target.code ?? m.fa.brand;
-    target.shortDescription = localized(m.fa.shortDescription);
-    target.description = localized(m.fa.description);
-    if (m.fa.features.length > 0) {
-      target.features = m.fa.features.map(localized);
-    }
-    const specs = buildSpecifications(m.specs);
-    if (specs.length > 0) target.specifications = specs;
-    if (m.certifications.length > 0) target.certifications = m.certifications;
-    const faq = buildFaq(m);
-    if (faq.length > 0) target.faq = faq;
-    target.status = m.status;
-  }
-};
-
-applyMasterOverlay();
 
 export const getCategory = (key: string) =>
   CATEGORIES.find((c) => c.key === key);

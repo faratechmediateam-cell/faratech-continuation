@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      category_copy: {
+        Row: {
+          category_key: Database["public"]["Enums"]["product_category_key"]
+          created_at: string
+          full_description: Json | null
+          short_description: Json | null
+          slug: string
+          target_audience: Json | null
+          title: Json | null
+          updated_at: string
+          usage: Json | null
+        }
+        Insert: {
+          category_key: Database["public"]["Enums"]["product_category_key"]
+          created_at?: string
+          full_description?: Json | null
+          short_description?: Json | null
+          slug: string
+          target_audience?: Json | null
+          title?: Json | null
+          updated_at?: string
+          usage?: Json | null
+        }
+        Update: {
+          category_key?: Database["public"]["Enums"]["product_category_key"]
+          created_at?: string
+          full_description?: Json | null
+          short_description?: Json | null
+          slug?: string
+          target_audience?: Json | null
+          title?: Json | null
+          updated_at?: string
+          usage?: Json | null
+        }
+        Relationships: []
+      }
       certifications: {
         Row: {
           created_at: string
