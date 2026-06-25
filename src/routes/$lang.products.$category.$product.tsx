@@ -6,7 +6,10 @@ import {
   getProductBySlug,
   listProducts,
 } from "@/lib/modules/products/product.functions";
-import { listCategories } from "@/lib/modules/categories/category.functions";
+import {
+  getCategoryCopy,
+  listCategories,
+} from "@/lib/modules/categories/category.functions";
 import { detailToProduct, dtoToCategory } from "@/lib/products-db-adapter";
 import { slugToEnum } from "@/lib/category-slug";
 
@@ -21,15 +24,16 @@ export const Route = createFileRoute("/$lang/products/$category/$product")({
     // Defensive: ensure the product really belongs to the requested category.
     if (detail.categoryKey !== enumKey) throw notFound();
 
-    const [allCategories, productsResult] = await Promise.all([
+    const [allCategories, productsResult, copy] = await Promise.all([
       listCategories(),
       listProducts({ data: { categoryKey: enumKey, limit: 100, offset: 0 } }),
+      getCategoryCopy({ data: { slug: params.category } }),
     ]);
     const catDto = allCategories.find((c) => c.key === enumKey);
     if (!catDto) throw notFound();
 
     return {
-      category: dtoToCategory(catDto, productsResult.items),
+      category: dtoToCategory(catDto, productsResult.items, copy),
       product: detailToProduct(detail),
     };
   },
