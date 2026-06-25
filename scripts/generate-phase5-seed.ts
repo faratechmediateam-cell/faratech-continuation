@@ -226,6 +226,6 @@ push(`);`);
 push("");
 push("COMMIT;");
 
-const out = resolve(__dirname, "../supabase/migrations/20260626000001_phase5_seed_data.sql");
+const out = resolve(__dirname, "./generated/phase5_seed_data.sql");
 writeFileSync(out, lines.join("\n") + "\n", "utf8");
 console.log(`Wrote ${out} (${lines.length} lines)`);
