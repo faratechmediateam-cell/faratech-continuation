@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { CategoryPage } from "@/components/faratech/category-page";
 import type { Lang } from "@/lib/i18n";
-import { buildLocaleMeta } from "@/lib/seo";
+import { buildLocaleMeta, robotsIndex } from "@/lib/seo";
 import {
   getCategoryCopy,
   listCategories,
