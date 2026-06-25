@@ -1,7 +1,12 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { ProductPage } from "@/components/faratech/product-page";
 import type { Lang } from "@/lib/i18n";
-import { buildLocaleMeta } from "@/lib/seo";
+import {
+  buildLocaleMeta,
+  faqJsonLd,
+  productJsonLd,
+  robotsIndex,
+} from "@/lib/seo";
 import {
   getProductBySlug,
   listProducts,
@@ -18,10 +23,7 @@ export const Route = createFileRoute("/$lang/products/$category/$product")({
     const enumKey = slugToEnum(params.category);
     if (!enumKey) throw notFound();
 
-    // notFound() inside the server fn is already mapped; surface as 404.
     const detail = await getProductBySlug({ data: { slug: params.product } });
-
-    // Defensive: ensure the product really belongs to the requested category.
     if (detail.categoryKey !== enumKey) throw notFound();
 
     const [allCategories, productsResult, copy] = await Promise.all([
@@ -32,9 +34,22 @@ export const Route = createFileRoute("/$lang/products/$category/$product")({
     const catDto = allCategories.find((c) => c.key === enumKey);
     if (!catDto) throw notFound();
 
+    const lang = (params.lang as Lang) ?? "fa";
+    const categoryLabel =
+      copy?.title?.[lang] ?? copy?.title?.fa ?? catDto.label[lang] ?? catDto.label.fa;
+    const productLd = productJsonLd(detail, { lang, categoryLabel });
+    const faqLd = faqJsonLd(detail.faqItems, lang);
+    const seoDescription =
+      detail.seo?.description?.[lang] ??
+      detail.seo?.description?.fa ??
+      detail.shortDescription?.[lang] ??
+      detail.shortDescription?.fa ??
+      null;
+
     return {
       category: dtoToCategory(catDto, productsResult.items, copy),
       product: detailToProduct(detail),
+      seo: { productLd, faqLd, description: seoDescription },
     };
   },
   head: ({ loaderData, params }) => {
@@ -43,17 +58,30 @@ export const Route = createFileRoute("/$lang/products/$category/$product")({
     const prod = params?.product ?? "";
     const locale = buildLocaleMeta(lang, (l) => `/${l}/products/${cat}/${prod}`);
     const name = loaderData?.product.name ?? "Product";
-    const description = `${name} — engineered by FARATECH.`;
+    const description =
+      loaderData?.seo.description ?? `${name} — engineered by FARATECH.`;
+    const scripts: Array<{ type: string; children: string }> = [];
+    if (loaderData?.seo.productLd) {
+      scripts.push({ type: "application/ld+json", children: loaderData.seo.productLd });
+    }
+    if (loaderData?.seo.faqLd) {
+      scripts.push({ type: "application/ld+json", children: loaderData.seo.faqLd });
+    }
     return {
       meta: [
         { title: `${name} — FARATECH` },
         { name: "description", content: description },
+        robotsIndex,
         { property: "og:title", content: `${name} — FARATECH` },
         { property: "og:description", content: description },
         { property: "og:type", content: "product" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: `${name} — FARATECH` },
+        { name: "twitter:description", content: description },
         ...locale.meta,
       ],
       links: locale.links,
+      scripts,
     };
   },
   errorComponent: ({ error }) => (

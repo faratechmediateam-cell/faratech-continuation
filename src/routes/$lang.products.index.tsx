@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { T, t, type Lang } from "@/lib/i18n";
-import { buildLocaleMeta, breadcrumbJsonLd } from "@/lib/seo";
+import { buildLocaleMeta, breadcrumbJsonLd, robotsIndex } from "@/lib/seo";
 import { DirChevron, DirArrow } from "@/components/faratech/dir-icon";
 import { listCategories } from "@/lib/modules/categories/category.functions";
 import { dtoToCategory } from "@/lib/products-db-adapter";
@@ -17,6 +17,7 @@ export const Route = createFileRoute("/$lang/products/")({
       meta: [
         { title: "Products — FARATECH" },
         { name: "description", content: "Browse FARATECH mobility products." },
+        robotsIndex,
         ...locale.meta,
       ],
       links: locale.links,

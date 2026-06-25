@@ -2,63 +2,61 @@
 
 ## Session Outcome
 
-Phase 5 (Data Import) has been completed.
+Phase 6 (SEO Foundation) has been completed.
 
-The project now sources all product, category and company runtime data
-exclusively from Supabase. The Phase-4 runtime overlay over the static
-master files has been removed; the static TypeScript files are retained
-only as inputs to the deterministic seed generator and for future Phase-6
-translation work.
+Per-route metadata, canonical / hreflang alternates, robots directives
+and structured data are now generated from the DB-backed runtime data
+imported in Phase 5. No JSON-LD builder reads `src/lib/data/*` at
+runtime.
 
 ---
 
-## Completed Work — Phase 5
+## Completed Work — Phase 6
 
-### Schema Extension
+### Metadata
 
-* Added `public.category_copy` table (slug PK, enum FK, jsonb editorial
-  fields) with RLS, grants and `updated_at` trigger.
-* RLS exposes copy rows to `anon` read-only; service_role retains write.
+* Every public locale route emits explicit `title`, `description`,
+  `canonical`, `og:url`, `og:title`, `og:description`, `og:type`,
+  `twitter:card`/`title`/`description`, hreflang alternates (`en` /
+  `fa` / `ar` + `x-default → fa`) and a shared `robotsIndex` directive.
+* Routes covered: `/${lang}` (home), `/${lang}/products`,
+  `/${lang}/products/${category}`, `/${lang}/products/${category}/${product}`,
+  `/${lang}/spare-parts`.
+* Product / category routes derive their description from
+  `product_seo.description` (DB) when present, falling back to the
+  product's `shortDescription`.
 
-### Data Import
+### JSON-LD
 
-* `scripts/generate-phase5-seed.ts` deterministically converts the static
-  `src/lib/data/*` files into an idempotent SQL seed
-  (`scripts/generated/phase5_seed_data.sql`).
-* Seeded:
-  - `company_profile`: 1 row
-  - `category_copy`: 5 rows (one per legacy slug)
-  - `products`: 18 rows (all PUBLISHED)
-  - `specification_groups`: 18, `specification_items`: 177
-  - `certifications`: 18, `faq_items`: 36
-* Temporary privileged `seed_exec` helper used during import was dropped
-  immediately after the migration.
-
-### Application Layer
-
-* `CategoryDto` extended with a sibling `CategoryCopyDto` shape.
-* `CategoryRepository.findAllCopy` / `findCopyBySlug` added.
-* `CategoryService.listCopy` / `getCopyBySlug` added.
-* New server functions: `listCategoryCopies`, `getCategoryCopy`.
-* `dtoToCategory(dto, products, copy?)` now consumes DB-sourced copy.
-* Category and product routes pass the per-slug copy into the adapter so
-  legacy slugs sharing one enum (`shower-wheelchairs`, `patient-lifts`,
-  `mobility-scooters` → `MOBILITY_AIDS`) keep distinct editorial copy.
-
-### Static-Data Decoupling
-
-* Removed `applyMasterOverlay()` from `src/lib/products.ts`. The
-  identity-only `CATEGORIES` skeleton is preserved for navigation chrome
-  and admin scaffolding only.
-* `src/lib/products-db-adapter.ts` no longer imports
-  `src/lib/data/category-copy.ts`.
-* `src/lib/data/*` files retained as documented inputs to the seed
-  generator and future translation work.
+* `src/lib/seo.ts` rewritten to be **data-driven**:
+  - `organizationJsonLd(profile)` consumes `CompanyProfileDto`. Missing
+    fields are omitted; never fabricated. Phone numbers normalized to
+    E.164 via a local helper (no static-data import).
+  - `productJsonLd(detail, { lang, categoryLabel })` consumes
+    `ProductDetailDto`. Emits `name`, `description`, `image[]`, `sku`,
+    `mpn`, `brand`, `manufacturer`, `category`, and a `hasCertification`
+    array derived from `certifications` rows. Missing fields omitted.
+  - `faqJsonLd(items, lang)` returns `null` when no FAQ items exist, so
+    callers don't emit an empty `FAQPage` block.
+  - `breadcrumbJsonLd(...)` unchanged.
+* Wiring:
+  - Organization JSON-LD on `$lang.index.tsx` via `head().scripts` using
+    `getCompanyProfile()` loader data. Sitewide fallback Organization
+    block in `__root.tsx` now passes `null` (safe minimal shape).
+  - Product + FAQ JSON-LD on `$lang.products.$category.$product.tsx`
+    via `head().scripts` from loader data. Component-side breadcrumb
+    JSON-LD retained.
 
 ### Validation
 
-* `scripts/validate-phase5.ts` checks record counts and slug integrity
-  against the static master files. All invariants currently hold.
+* `scripts/validate-phase6.ts` exercises the DB → mapper → JSON-LD
+  builder chain end-to-end:
+  - Organization @type / contactPoint / no-fabrication invariants.
+  - Product JSON-LD valid for every PUBLISHED product (18/18).
+  - FAQ JSON-LD emitted iff FAQs exist (18/18 valid, 0 fabricated).
+  - Canonical + hreflang `en/fa/ar/x-default` present on locale meta.
+  - All PUBLISHED products have a slug + category_key (route safety).
+* Run: `bun run scripts/validate-phase6.ts` → all checks PASS.
 
 ---
 
@@ -66,32 +64,61 @@ translation work.
 
 UI
 ↓
-Route Loader (passes URL slug for editorial copy)
+Route Loader (now produces meta + JSON-LD strings)
 ↓
 Server Function (products / categories / category copy / company)
 ↓
 Service → Repository → Supabase
 
-No public route depends on `src/lib/data/*` at runtime.
+Architecture, DTOs and Repository pattern unchanged.
+
+---
+
+## Files Changed
+
+* `src/lib/seo.ts` — full rewrite (DB-driven, no static-data import).
+* `src/routes/$lang.index.tsx` — loader + Organization JSON-LD + robots.
+* `src/routes/$lang.products.$category.$product.tsx` — Product + FAQ
+  JSON-LD in head, twitter/og enrichment, DB-sourced description.
+* `src/routes/$lang.products.$category.index.tsx` — robots/twitter meta.
+* `src/routes/$lang.products.index.tsx` — robots meta.
+* `src/routes/__root.tsx` — sitewide Organization fallback now passes
+  `null` instead of the removed static `COMPANY_PROFILE`.
+* `src/components/faratech/product-page.tsx` — drop inline
+  `productJsonLd` (now route-level).
+* `scripts/validate-phase6.ts` — new validator.
 
 ---
 
 ## Next Session
 
-Phase 6 — SEO Foundation and Media Integration (per documented roadmap).
+Phase 7 — Media Integration (per documented roadmap).
 
-* Begin per-locale metadata, sitemap and JSON-LD work using the now
-  authoritative database content.
-* Begin media (images / video / documents) integration via the existing
-  `product_images` / `product_videos` / `product_documents` tables.
+* Wire `product_images`, `product_videos`, `product_documents` rows to
+  Supabase Storage; populate `og:image` / `twitter:image` from primary
+  product images.
+* Add a Storage bucket + RLS for media uploads (admin write, public
+  read).
+* Backfill alt text / dimensions / poster frames as required by the
+  existing DTOs.
+* No new features outside the documented roadmap.
 
-No new features outside the documented roadmap should be introduced.
+---
+
+## Deferred (not in Phase 6 scope)
+
+* Sitemap.xml generation from DB (Phase 7/9 SEO completion).
+* Dedicated company / about / contact route with full Organization
+  page metadata (currently consolidated on the homepage).
+* `og:image` / `twitter:image` URLs — depend on Phase 7 media wiring.
+* PriceSpecification / Offer on Product JSON-LD — no pricing in DTO.
 
 ---
 
 ## Notes
 
-* Architecture unchanged. Repository pattern remains the only abstraction.
+* No DTO contracts modified.
+* No Product model changes.
 * All routes and slugs preserved.
-* `seed_exec` is gone; `migration_log` retains its intentional
-  service-role-only RLS posture.
+* `src/lib/data/*` is now only an input to the Phase 5 seed generator;
+  no runtime code path imports it.

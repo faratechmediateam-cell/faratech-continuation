@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { CategoryPage } from "@/components/faratech/category-page";
 import type { Lang } from "@/lib/i18n";
-import { buildLocaleMeta } from "@/lib/seo";
+import { buildLocaleMeta, robotsIndex } from "@/lib/seo";
 import {
   getCategoryCopy,
   listCategories,
@@ -33,8 +33,13 @@ export const Route = createFileRoute("/$lang/products/$category/")({
       meta: [
         { title: `${title} — FARATECH` },
         { name: "description", content: description },
+        robotsIndex,
         { property: "og:title", content: `${title} — FARATECH` },
         { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: `${title} — FARATECH` },
+        { name: "twitter:description", content: description },
         ...locale.meta,
       ],
       links: locale.links,

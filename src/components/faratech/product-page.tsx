@@ -3,7 +3,7 @@ import { Download, Mail } from "lucide-react";
 import { type Lang, T, t } from "@/lib/i18n";
 import type { Category, Product, ProductDocument } from "@/lib/products";
 import { CATEGORIES } from "@/lib/products";
-import { breadcrumbJsonLd, productJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd } from "@/lib/seo";
 import { DirChevron, DirArrow } from "@/components/faratech/dir-icon";
 
 export function ProductPage({ lang, category, product }: { lang: Lang; category: Category; product: Product }) {
@@ -35,18 +35,11 @@ export function ProductPage({ lang, category, product }: { lang: Lang; category:
     { name: category.title[lang], path: `/${lang}/products/${category.key}` },
     { name: product.name, path: `/${lang}/products/${category.key}/${product.slug}` },
   ]);
-  const product_ld = productJsonLd({
-    name: product.name,
-    description: description ?? "",
-    image: primaryImage?.src ?? product.seo?.ogImage,
-    category: category.title.en,
-    sku: product.code ?? product.slug,
-  });
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbs }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: product_ld }} />
+
       <section className="bg-white border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-muted-foreground">

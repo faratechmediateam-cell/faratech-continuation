@@ -190,15 +190,18 @@ UI
 
 # Next Planned Phase
 
-Phase 5 — Data Import
+Phase 7 — Media Integration
 
 Objectives:
 
-* Import products into database
-* Import company profile
-* Import category content
-* Remove remaining runtime dependency on static data files
-* Validate seeded data
+* Wire product_images / product_videos / product_documents
+* Configure Supabase Storage bucket + RLS (admin write, public read)
+* Populate og:image / twitter:image from primary product images
+* Backfill alt text, dimensions, and poster frames
+
+Completed Phases (latest first): Phase 6 — SEO Foundation, Phase 5 —
+Data Import, Phase 4 — Data Wiring, Phase 3 — Backend Modules, Phase 2
+— Schema, Phase 1 — Product Model.
 
 ---
 
