@@ -542,7 +542,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      seed_exec: { Args: { secret: string; sql: string }; Returns: undefined }
+      [_ in never]: never
     }
     Enums: {
       document_kind:
