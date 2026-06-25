@@ -130,7 +130,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: organizationJsonLd() }}
+          dangerouslySetInnerHTML={{ __html: organizationJsonLd(null) }}
         />
       </head>
       <body>
