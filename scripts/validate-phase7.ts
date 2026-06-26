@@ -60,8 +60,8 @@ const record = (name: string, ok: boolean, detail?: string) =>
     resolveMediaUrl("gx-pro/cover.jpg") === `${MEDIA_PROXY_PREFIX}/gx-pro/cover.jpg`,
   );
   record(
-    "resolveMediaUrl: strips leading slashes from bucket key",
-    resolveMediaUrl("//gx-pro/cover.jpg").startsWith(MEDIA_PROXY_PREFIX + "/gx-pro"),
+    "resolveMediaUrl: empty input returns empty",
+    resolveMediaUrl(null) === "" && resolveMediaUrl(undefined) === "" && resolveMediaUrl("") === "",
   );
   record("isResolvedMediaUrl: detects https", isResolvedMediaUrl("https://x"));
   record("isResolvedMediaUrl: detects rooted path", isResolvedMediaUrl("/a.png"));
