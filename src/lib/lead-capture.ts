@@ -1,11 +1,14 @@
-// Client-side lead capture submission helper.
+// Client-side lead capture helper.
 //
-// TODO(backend): replace this stub with a real endpoint once Phase 1
-// (NestJS backend) is in place. Until then we POST to a configurable URL
-// (e.g. Formspree / Web3Forms) read from `VITE_LEAD_CAPTURE_URL`, and fall
-// back to a no-op success in dev so the UI flow remains testable without
-// leaking submissions.
+// Delegates to TanStack server functions in
+// `@/lib/modules/leads/lead.functions`, which persist the lead through
+// the Repository/Service pipeline and trigger email notification.
+// Schemas remain here so the UI keeps its existing validation contract.
 import { z } from "zod";
+import {
+  submitContactLead,
+  submitNewsletterLead,
+} from "@/lib/modules/leads/lead.functions";
 
 export const contactSchema = z.object({
   name: z.string().trim().min(2, "validation_name").max(100),
@@ -22,27 +25,36 @@ export const newsletterSchema = z.object({
 
 export type NewsletterInput = z.infer<typeof newsletterSchema>;
 
-const ENDPOINT =
-  (import.meta as unknown as { env?: Record<string, string | undefined> }).env
-    ?.VITE_LEAD_CAPTURE_URL ?? "";
-
-async function submit(kind: "contact" | "newsletter", payload: Record<string, unknown>) {
-  if (!ENDPOINT) {
-    // Dev fallback: log and resolve so UI states still work end-to-end.
-    if (typeof console !== "undefined") {
-      // eslint-disable-next-line no-console
-      console.info(`[lead-capture] ${kind} submission (no endpoint configured)`, payload);
-    }
-    await new Promise((r) => setTimeout(r, 400));
-    return;
-  }
-  const res = await fetch(ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ kind, ...payload }),
-  });
-  if (!res.ok) throw new Error(`submission_failed_${res.status}`);
+function currentLocale(): string | null {
+  if (typeof window === "undefined") return null;
+  const seg = window.location.pathname.split("/").filter(Boolean)[0];
+  return seg && /^(fa|en|ar)$/.test(seg) ? seg : null;
 }
 
-export const submitContact = (data: ContactInput) => submit("contact", data);
-export const submitNewsletter = (data: NewsletterInput) => submit("newsletter", data);
+function currentSource(): string | null {
+  if (typeof window === "undefined") return null;
+  return window.location.pathname || null;
+}
+
+export async function submitContact(data: ContactInput): Promise<void> {
+  await submitContactLead({
+    data: {
+      name: data.name,
+      email: data.email,
+      organization: data.organization?.trim() ? data.organization : null,
+      message: data.message,
+      locale: currentLocale(),
+      source: currentSource(),
+    },
+  });
+}
+
+export async function submitNewsletter(data: NewsletterInput): Promise<void> {
+  await submitNewsletterLead({
+    data: {
+      email: data.email,
+      locale: currentLocale(),
+      source: currentSource(),
+    },
+  });
+}
