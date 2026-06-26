@@ -159,6 +159,51 @@ export type Database = {
           },
         ]
       }
+      leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          kind: Database["public"]["Enums"]["lead_kind"]
+          locale: string | null
+          message: string | null
+          metadata: Json
+          name: string | null
+          organization: string | null
+          source: string | null
+          status: Database["public"]["Enums"]["lead_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          kind: Database["public"]["Enums"]["lead_kind"]
+          locale?: string | null
+          message?: string | null
+          metadata?: Json
+          name?: string | null
+          organization?: string | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["lead_kind"]
+          locale?: string | null
+          message?: string | null
+          metadata?: Json
+          name?: string | null
+          organization?: string | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       migration_log: {
         Row: {
           batch_name: string
@@ -553,6 +598,8 @@ export type Database = {
         | "WARRANTY"
         | "OTHER"
       language: "EN" | "FA" | "AR"
+      lead_kind: "contact" | "newsletter"
+      lead_status: "new" | "notified" | "archived"
       media_provider: "YOUTUBE" | "VIMEO" | "SELF_HOSTED"
       product_category_key:
         | "POWER_WHEELCHAIRS"
@@ -697,6 +744,8 @@ export const Constants = {
         "OTHER",
       ],
       language: ["EN", "FA", "AR"],
+      lead_kind: ["contact", "newsletter"],
+      lead_status: ["new", "notified", "archived"],
       media_provider: ["YOUTUBE", "VIMEO", "SELF_HOSTED"],
       product_category_key: [
         "POWER_WHEELCHAIRS",
