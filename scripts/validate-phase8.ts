@@ -122,10 +122,12 @@ const newsletterProbeEmail = `phase8+news-${Date.now()}@validate.faratech.local`
 }
 
 // ---------- Cleanup probe rows with service role if available ----------
-if (serviceKey && (insertedContactId || insertedNewsletterId)) {
+if (serviceKey) {
   const admin = createClient(url, serviceKey);
-  const ids = [insertedContactId, insertedNewsletterId].filter(Boolean) as string[];
-  await admin.from("leads").delete().in("id", ids);
+  await admin
+    .from("leads")
+    .delete()
+    .in("email", [contactProbeEmail, newsletterProbeEmail]);
 }
 
 // ---------- Public routes untouched ----------
