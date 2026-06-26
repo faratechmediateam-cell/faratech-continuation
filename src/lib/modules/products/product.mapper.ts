@@ -40,7 +40,7 @@ function asLocalizedArray(v: unknown): LocalizedText[] {
 export function mapImage(row: Row): ProductImageDto {
   return {
     id: String(row.id),
-    src: String(row.src),
+    src: resolveMediaUrl(String(row.src)),
     width: (row.width as number | null) ?? null,
     height: (row.height as number | null) ?? null,
     isPrimary: Boolean(row.is_primary),
