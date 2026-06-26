@@ -81,6 +81,12 @@ export const Route = createFileRoute("/$lang/products/$category/$product")({
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: `${name} — FARATECH` },
         { name: "twitter:description", content: description },
+        ...(loaderData?.seo.ogImage
+          ? [
+              { property: "og:image", content: loaderData.seo.ogImage },
+              { name: "twitter:image", content: loaderData.seo.ogImage },
+            ]
+          : []),
         ...locale.meta,
       ],
       links: locale.links,
