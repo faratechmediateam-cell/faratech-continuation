@@ -50,10 +50,11 @@ export function mapImage(row: Row): ProductImageDto {
 }
 
 export function mapVideo(row: Row): ProductVideoDto {
+  const poster = (row.poster as string | null) ?? null;
   return {
     id: String(row.id),
-    src: String(row.src),
-    poster: (row.poster as string | null) ?? null,
+    src: resolveMediaUrl(String(row.src)),
+    poster: poster ? resolveMediaUrl(poster) : null,
     provider: (row.provider as ProductVideoDto["provider"]) ?? "SELF_HOSTED",
     durationSeconds: (row.duration_seconds as number | null) ?? null,
     title: asLocalized(row.title),
@@ -65,7 +66,7 @@ export function mapDocument(row: Row): ProductDocumentDto {
   return {
     id: String(row.id),
     kind: row.kind as ProductDocumentDto["kind"],
-    src: String(row.src),
+    src: resolveMediaUrl(String(row.src)),
     language: (row.language as ProductDocumentDto["language"]) ?? null,
     sizeBytes: (row.size_bytes as number | null) ?? null,
     title: asLocalized(row.title),
