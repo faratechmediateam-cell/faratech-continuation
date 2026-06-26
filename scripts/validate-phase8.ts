@@ -52,11 +52,13 @@ for (const f of moduleFiles) {
 
 // ---------- Schema enforced via RLS ----------
 {
-  const { error } = await anon.from("leads").select("id").limit(1);
+  const { data, error } = await anon.from("leads").select("id").limit(1);
+  // RLS with no SELECT policy returns 0 rows (no error). Either is fine
+  // as long as anon never sees real data.
   record(
-    "anon SELECT on leads is blocked",
-    !!error,
-    error ? undefined : "SELECT unexpectedly succeeded",
+    "anon SELECT on leads returns no rows",
+    !error && Array.isArray(data) && data.length === 0,
+    error?.message,
   );
 }
 
