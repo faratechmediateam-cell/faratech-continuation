@@ -63,39 +63,35 @@ for (const f of moduleFiles) {
 }
 
 // ---------- anon INSERT (contact) succeeds via RLS policy ----------
-let insertedContactId: string | null = null;
+const contactProbeEmail = `phase8+contact-${Date.now()}@validate.faratech.local`;
 {
-  const probeEmail = `phase8+contact-${Date.now()}@validate.faratech.local`;
-  const { data, error } = await anon
-    .from("leads")
-    .insert({
-      kind: "contact",
-      email: probeEmail,
-      name: "Phase8 Validator",
-      message: "automated phase 8 validation probe",
-      source: "validate-phase8",
-    })
-    .select("id")
-    .single();
-  record("anon INSERT contact lead succeeds", !error && !!data, error?.message);
-  insertedContactId = (data?.id as string) ?? null;
+  const { error, status } = await anon.from("leads").insert({
+    kind: "contact",
+    email: contactProbeEmail,
+    name: "Phase8 Validator",
+    message: "automated phase 8 validation probe",
+    source: "validate-phase8",
+  });
+  record(
+    "anon INSERT contact lead succeeds",
+    !error && status >= 200 && status < 300,
+    error?.message,
+  );
 }
 
 // ---------- anon INSERT (newsletter) succeeds ----------
-let insertedNewsletterId: string | null = null;
+const newsletterProbeEmail = `phase8+news-${Date.now()}@validate.faratech.local`;
 {
-  const probeEmail = `phase8+news-${Date.now()}@validate.faratech.local`;
-  const { data, error } = await anon
-    .from("leads")
-    .insert({
-      kind: "newsletter",
-      email: probeEmail,
-      source: "validate-phase8",
-    })
-    .select("id")
-    .single();
-  record("anon INSERT newsletter lead succeeds", !error && !!data, error?.message);
-  insertedNewsletterId = (data?.id as string) ?? null;
+  const { error, status } = await anon.from("leads").insert({
+    kind: "newsletter",
+    email: newsletterProbeEmail,
+    source: "validate-phase8",
+  });
+  record(
+    "anon INSERT newsletter lead succeeds",
+    !error && status >= 200 && status < 300,
+    error?.message,
+  );
 }
 
 // ---------- Contact requires message (check constraint) ----------
