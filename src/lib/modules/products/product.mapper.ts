@@ -125,7 +125,7 @@ export function mapSeo(row: Row | null | undefined): ProductSeoDto | null {
     description: asLocalized(row.description),
     keywords: Array.isArray(row.keywords) ? (row.keywords as string[]) : [],
     canonical: (row.canonical as string | null) ?? null,
-    ogImage: (row.og_image as string | null) ?? null,
+    ogImage: row.og_image ? resolveMediaUrl(String(row.og_image)) : null,
   };
 }
 
