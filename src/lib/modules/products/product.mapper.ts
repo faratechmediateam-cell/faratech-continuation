@@ -17,6 +17,7 @@ import type {
   SpecificationGroupDto,
   SpecificationItemDto,
 } from "./product.dto";
+import { resolveMediaUrl } from "@/lib/media-url";
 
 type Row = Record<string, unknown>;
 
@@ -39,7 +40,7 @@ function asLocalizedArray(v: unknown): LocalizedText[] {
 export function mapImage(row: Row): ProductImageDto {
   return {
     id: String(row.id),
-    src: String(row.src),
+    src: resolveMediaUrl(String(row.src)),
     width: (row.width as number | null) ?? null,
     height: (row.height as number | null) ?? null,
     isPrimary: Boolean(row.is_primary),
@@ -49,10 +50,11 @@ export function mapImage(row: Row): ProductImageDto {
 }
 
 export function mapVideo(row: Row): ProductVideoDto {
+  const poster = (row.poster as string | null) ?? null;
   return {
     id: String(row.id),
-    src: String(row.src),
-    poster: (row.poster as string | null) ?? null,
+    src: resolveMediaUrl(String(row.src)),
+    poster: poster ? resolveMediaUrl(poster) : null,
     provider: (row.provider as ProductVideoDto["provider"]) ?? "SELF_HOSTED",
     durationSeconds: (row.duration_seconds as number | null) ?? null,
     title: asLocalized(row.title),
@@ -64,7 +66,7 @@ export function mapDocument(row: Row): ProductDocumentDto {
   return {
     id: String(row.id),
     kind: row.kind as ProductDocumentDto["kind"],
-    src: String(row.src),
+    src: resolveMediaUrl(String(row.src)),
     language: (row.language as ProductDocumentDto["language"]) ?? null,
     sizeBytes: (row.size_bytes as number | null) ?? null,
     title: asLocalized(row.title),
@@ -123,7 +125,7 @@ export function mapSeo(row: Row | null | undefined): ProductSeoDto | null {
     description: asLocalized(row.description),
     keywords: Array.isArray(row.keywords) ? (row.keywords as string[]) : [],
     canonical: (row.canonical as string | null) ?? null,
-    ogImage: (row.og_image as string | null) ?? null,
+    ogImage: row.og_image ? resolveMediaUrl(String(row.og_image)) : null,
   };
 }
 

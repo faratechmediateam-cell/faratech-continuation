@@ -2,61 +2,61 @@
 
 ## Session Outcome
 
-Phase 6 (SEO Foundation) has been completed.
+Phase 7 (Media Integration) has been completed.
 
-Per-route metadata, canonical / hreflang alternates, robots directives
-and structured data are now generated from the DB-backed runtime data
-imported in Phase 5. No JSON-LD builder reads `src/lib/data/*` at
-runtime.
+A private Supabase Storage bucket `product-media` is provisioned, a
+public proxy route streams objects to the browser, and the product
+mapper resolves every media `src` into a fetchable URL. Product pages
+now emit `og:image` / `twitter:image` from `product_seo.og_image` (or
+the primary image as fallback).
 
 ---
 
-## Completed Work — Phase 6
+## Completed Work — Phase 7
 
-### Metadata
+### Storage Infrastructure
 
-* Every public locale route emits explicit `title`, `description`,
-  `canonical`, `og:url`, `og:title`, `og:description`, `og:type`,
-  `twitter:card`/`title`/`description`, hreflang alternates (`en` /
-  `fa` / `ar` + `x-default → fa`) and a shared `robotsIndex` directive.
-* Routes covered: `/${lang}` (home), `/${lang}/products`,
-  `/${lang}/products/${category}`, `/${lang}/products/${category}/${product}`,
-  `/${lang}/spare-parts`.
-* Product / category routes derive their description from
-  `product_seo.description` (DB) when present, falling back to the
-  product's `shortDescription`.
+* Bucket `product-media` created (private — workspace policy blocks
+  public buckets).
+* `storage.objects` RLS: a `service_role` policy grants ALL on rows
+  inside the bucket. No anon or authenticated write/read paths.
+* Public reads served via TanStack server route
+  `/api/public/media/$` — uses `supabaseAdmin.storage.download` and
+  returns the bytes with `cache-control: public, max-age=3600,
+  s-maxage=86400, immutable`. Path traversal (`..`) is rejected.
 
-### JSON-LD
+### URL Resolution
 
-* `src/lib/seo.ts` rewritten to be **data-driven**:
-  - `organizationJsonLd(profile)` consumes `CompanyProfileDto`. Missing
-    fields are omitted; never fabricated. Phone numbers normalized to
-    E.164 via a local helper (no static-data import).
-  - `productJsonLd(detail, { lang, categoryLabel })` consumes
-    `ProductDetailDto`. Emits `name`, `description`, `image[]`, `sku`,
-    `mpn`, `brand`, `manufacturer`, `category`, and a `hasCertification`
-    array derived from `certifications` rows. Missing fields omitted.
-  - `faqJsonLd(items, lang)` returns `null` when no FAQ items exist, so
-    callers don't emit an empty `FAQPage` block.
-  - `breadcrumbJsonLd(...)` unchanged.
-* Wiring:
-  - Organization JSON-LD on `$lang.index.tsx` via `head().scripts` using
-    `getCompanyProfile()` loader data. Sitewide fallback Organization
-    block in `__root.tsx` now passes `null` (safe minimal shape).
-  - Product + FAQ JSON-LD on `$lang.products.$category.$product.tsx`
-    via `head().scripts` from loader data. Component-side breadcrumb
-    JSON-LD retained.
+* New helper `src/lib/media-url.ts`:
+  - `MEDIA_BUCKET`, `MEDIA_PROXY_PREFIX` constants.
+  - `resolveMediaUrl(src)` accepts absolute URLs, site-rooted paths,
+    or bare bucket keys; returns a single fetchable URL.
+  - `isResolvedMediaUrl(src)` predicate for the validator.
+  - `resolveAbsoluteMediaUrl(src, origin)` for future absolute-URL
+    needs (sitemap, OG when an origin is configured).
+* `mapImage`, `mapVideo`, `mapDocument`, and `mapSeo` in
+  `src/lib/modules/products/product.mapper.ts` now apply
+  `resolveMediaUrl` so DTO consumers never see raw bucket keys.
+
+### Route Wiring
+
+* `src/routes/$lang.products.$category.$product.tsx`:
+  - Loader picks the primary product image and exposes
+    `seo.ogImage = product_seo.ogImage ?? primaryImage.src ?? null`.
+  - Head emits `og:image` and `twitter:image` only when an image is
+    available (no placeholder fabrication).
+* No URL or slug changes. Adapter (`detailToProduct`,
+  `summaryToProduct`) untouched — it already passes `src` through.
 
 ### Validation
 
-* `scripts/validate-phase6.ts` exercises the DB → mapper → JSON-LD
-  builder chain end-to-end:
-  - Organization @type / contactPoint / no-fabrication invariants.
-  - Product JSON-LD valid for every PUBLISHED product (18/18).
-  - FAQ JSON-LD emitted iff FAQs exist (18/18 valid, 0 fabricated).
-  - Canonical + hreflang `en/fa/ar/x-default` present on locale meta.
-  - All PUBLISHED products have a slug + category_key (route safety).
-* Run: `bun run scripts/validate-phase6.ts` → all checks PASS.
+* `scripts/validate-phase7.ts` covers:
+  - Bucket exists and is private.
+  - URL resolver behaviour for all input shapes.
+  - Mapper resolution for every PUBLISHED product
+    (images / videos / posters / documents).
+  - Presence of the public proxy route file.
+* Run: `bun run scripts/validate-phase7.ts` → **13/13 PASS**.
 
 ---
 
@@ -64,11 +64,13 @@ runtime.
 
 UI
 ↓
-Route Loader (now produces meta + JSON-LD strings)
+Route Loader (now emits og:image / twitter:image from DB)
 ↓
-Server Function (products / categories / category copy / company)
+Server Function
 ↓
-Service → Repository → Supabase
+Service → Repository → Supabase (Postgres + Storage)
+↓
+Storage objects served via `/api/public/media/$`
 
 Architecture, DTOs and Repository pattern unchanged.
 
@@ -76,42 +78,55 @@ Architecture, DTOs and Repository pattern unchanged.
 
 ## Files Changed
 
-* `src/lib/seo.ts` — full rewrite (DB-driven, no static-data import).
-* `src/routes/$lang.index.tsx` — loader + Organization JSON-LD + robots.
-* `src/routes/$lang.products.$category.$product.tsx` — Product + FAQ
-  JSON-LD in head, twitter/og enrichment, DB-sourced description.
-* `src/routes/$lang.products.$category.index.tsx` — robots/twitter meta.
-* `src/routes/$lang.products.index.tsx` — robots meta.
-* `src/routes/__root.tsx` — sitewide Organization fallback now passes
-  `null` instead of the removed static `COMPANY_PROFILE`.
-* `src/components/faratech/product-page.tsx` — drop inline
-  `productJsonLd` (now route-level).
-* `scripts/validate-phase6.ts` — new validator.
+* `src/lib/media-url.ts` — new helper.
+* `src/routes/api.public.media.$.ts` — new public proxy route.
+* `src/lib/modules/products/product.mapper.ts` — media URL resolution
+  on image / video / poster / document / og_image.
+* `src/routes/$lang.products.$category.$product.tsx` — og:image /
+  twitter:image in head, derived from loader data.
+* `scripts/validate-phase7.ts` — new validator.
+* Supabase migration: `service_role manages product-media` policy on
+  `storage.objects`.
+
+---
+
+## Database Changes
+
+* New storage bucket `product-media` (private).
+* New `storage.objects` policy `service_role manages product-media`
+  (FOR ALL TO service_role scoped to the bucket).
+* No schema changes to `public.product_images`,
+  `public.product_videos`, `public.product_documents`,
+  `public.product_seo`. Phase 7 is backward compatible with existing
+  rows (currently empty in all four tables).
 
 ---
 
 ## Next Session
 
-Phase 7 — Media Integration (per documented roadmap).
+Phase 8 — Forms & Lead Generation.
 
-* Wire `product_images`, `product_videos`, `product_documents` rows to
-  Supabase Storage; populate `og:image` / `twitter:image` from primary
-  product images.
-* Add a Storage bucket + RLS for media uploads (admin write, public
-  read).
-* Backfill alt text / dimensions / poster frames as required by the
-  existing DTOs.
-* No new features outside the documented roadmap.
+* Contact form (DB + email)
+* Lead capture pipeline
+* Email integration
+
+No new features outside the documented roadmap.
 
 ---
 
-## Deferred (not in Phase 6 scope)
+## Deferred (not in Phase 7 scope)
 
-* Sitemap.xml generation from DB (Phase 7/9 SEO completion).
-* Dedicated company / about / contact route with full Organization
-  page metadata (currently consolidated on the homepage).
-* `og:image` / `twitter:image` URLs — depend on Phase 7 media wiring.
-* PriceSpecification / Offer on Product JSON-LD — no pricing in DTO.
+* Bulk media upload tooling / admin CMS — Phase 7 only provisions
+  infrastructure; uploads run via service-role tooling outside the
+  app for now.
+* Image transformation (resize, format negotiation) — proxy serves
+  the stored bytes verbatim. Revisit during Phase 9 performance work.
+* Sitemap image extensions (`<image:image>`) — to be added with the
+  DB-driven sitemap in Phase 9.
+* Backfill of actual product imagery — content task, not engineering.
+* Signed-URL fallback for non-public assets — not needed while the
+  proxy route exists and every asset in this bucket is meant to be
+  publicly viewable.
 
 ---
 
@@ -120,5 +135,6 @@ Phase 7 — Media Integration (per documented roadmap).
 * No DTO contracts modified.
 * No Product model changes.
 * All routes and slugs preserved.
-* `src/lib/data/*` is now only an input to the Phase 5 seed generator;
-  no runtime code path imports it.
+* `product_images` / `product_videos` / `product_documents` tables
+  remain empty; the integration is validated by exercising the
+  resolver and mapper against the existing schema.

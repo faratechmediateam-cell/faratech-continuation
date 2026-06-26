@@ -190,18 +190,38 @@ UI
 
 # Next Planned Phase
 
-Phase 7 — Media Integration
+Phase 8 — Forms & Lead Generation
 
 Objectives:
 
-* Wire product_images / product_videos / product_documents
-* Configure Supabase Storage bucket + RLS (admin write, public read)
-* Populate og:image / twitter:image from primary product images
-* Backfill alt text, dimensions, and poster frames
+* Contact form
+* Lead capture pipeline
+* Email integration
 
-Completed Phases (latest first): Phase 6 — SEO Foundation, Phase 5 —
-Data Import, Phase 4 — Data Wiring, Phase 3 — Backend Modules, Phase 2
-— Schema, Phase 1 — Product Model.
+Completed Phases (latest first): Phase 7 — Media Integration, Phase 6 —
+SEO Foundation, Phase 5 — Data Import, Phase 4 — Data Wiring, Phase 3
+— Backend Modules, Phase 2 — Schema, Phase 1 — Product Model.
+
+---
+
+# Phase 7 Summary
+
+Media Integration completed:
+
+* `product-media` Supabase Storage bucket created (private; workspace
+  policy blocks public buckets).
+* `storage.objects` RLS scoped so only `service_role` may write.
+* Public read served via `/api/public/media/$` proxy route that streams
+  bucket objects with long-cache headers — no service credentials leak.
+* `src/lib/media-url.ts` resolver normalizes the three accepted `src`
+  shapes (absolute URL / site-rooted path / bucket key).
+* Product mapper resolves `product_images.src`, `product_videos.src`,
+  `product_videos.poster`, `product_documents.src`, and
+  `product_seo.og_image` through the resolver.
+* Product route head emits `og:image` and `twitter:image` from
+  `product_seo.og_image` with a fallback to the primary image when
+  present.
+* `scripts/validate-phase7.ts` verifies all media invariants.
 
 ---
 
