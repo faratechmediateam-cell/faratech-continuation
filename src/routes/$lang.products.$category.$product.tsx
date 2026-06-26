@@ -45,11 +45,14 @@ export const Route = createFileRoute("/$lang/products/$category/$product")({
       detail.shortDescription?.[lang] ??
       detail.shortDescription?.fa ??
       null;
+    const primaryImage =
+      detail.images.find((i) => i.isPrimary) ?? detail.images[0] ?? null;
+    const ogImage = detail.seo?.ogImage ?? primaryImage?.src ?? null;
 
     return {
       category: dtoToCategory(catDto, productsResult.items, copy),
       product: detailToProduct(detail),
-      seo: { productLd, faqLd, description: seoDescription },
+      seo: { productLd, faqLd, description: seoDescription, ogImage },
     };
   },
   head: ({ loaderData, params }) => {
