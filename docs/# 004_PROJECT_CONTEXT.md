@@ -190,38 +190,41 @@ UI
 
 # Next Planned Phase
 
-Phase 8 — Forms & Lead Generation
+Phase 9 — QA, Performance and Production Deployment
 
 Objectives:
 
-* Contact form
-* Lead capture pipeline
-* Email integration
+* End-to-end QA pass across locales
+* Performance budgets and lighthouse audits
+* Production deployment hardening
 
-Completed Phases (latest first): Phase 7 — Media Integration, Phase 6 —
-SEO Foundation, Phase 5 — Data Import, Phase 4 — Data Wiring, Phase 3
-— Backend Modules, Phase 2 — Schema, Phase 1 — Product Model.
+Completed Phases (latest first): Phase 8 — Forms & Lead Generation,
+Phase 7 — Media Integration, Phase 6 — SEO Foundation, Phase 5 — Data
+Import, Phase 4 — Data Wiring, Phase 3 — Backend Modules, Phase 2 —
+Schema, Phase 1 — Product Model.
 
 ---
 
-# Phase 7 Summary
+# Phase 8 Summary
 
-Media Integration completed:
+Forms & Lead Generation completed:
 
-* `product-media` Supabase Storage bucket created (private; workspace
-  policy blocks public buckets).
-* `storage.objects` RLS scoped so only `service_role` may write.
-* Public read served via `/api/public/media/$` proxy route that streams
-  bucket objects with long-cache headers — no service credentials leak.
-* `src/lib/media-url.ts` resolver normalizes the three accepted `src`
-  shapes (absolute URL / site-rooted path / bucket key).
-* Product mapper resolves `product_images.src`, `product_videos.src`,
-  `product_videos.poster`, `product_documents.src`, and
-  `product_seo.og_image` through the resolver.
-* Product route head emits `og:image` and `twitter:image` from
-  `product_seo.og_image` with a fallback to the primary image when
-  present.
-* `scripts/validate-phase7.ts` verifies all media invariants.
+* `public.leads` table with kind/status enums, length + email-format
+  CHECK constraints, and RLS that allows anon/authenticated to INSERT
+  only while service_role retains full access.
+* Lead module under `src/lib/modules/leads/` follows the standard
+  Repository → Service → Server Function pipeline (DTO, mapper,
+  repository, service, server functions, email helper).
+* `LeadRepository` generates the row id client-side and skips
+  `RETURNING`, so the publishable-key client can insert without a
+  SELECT policy.
+* `lead-email.ts` posts to Resend when `RESEND_API_KEY` and
+  `LEAD_NOTIFY_EMAIL` are set; otherwise logs server-side so capture
+  never fails on notification errors.
+* `src/lib/lead-capture.ts` keeps its `submitContact` /
+  `submitNewsletter` surface and delegates to `submitContactLead` /
+  `submitNewsletterLead` server functions, so the CTA UI is unchanged.
+* `scripts/validate-phase8.ts` — 18/18 checks pass.
 
 ---
 
